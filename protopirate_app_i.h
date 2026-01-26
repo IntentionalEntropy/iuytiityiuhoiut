@@ -50,10 +50,12 @@ struct ProtoPirateApp {
     ViewDispatcher* view_dispatcher;
     SceneManager* scene_manager;
     NotificationApp* notifications;
+    DialogsApp* dialogs;
     VariableItemList* variable_item_list;
     Submenu* submenu;
     Widget* widget;
     View* view_about;
+    FuriString* file_path;
     ProtoPirateReceiver* protopirate_receiver;
     ProtoPirateReceiverInfo* protopirate_receiver_info;
     ProtoPirateTxRx* txrx;
@@ -61,6 +63,7 @@ struct ProtoPirateApp {
     ProtoPirateLock lock;
     FuriString* loaded_file_path;
     bool auto_save;
+    bool radio_initialized;
     ProtoPirateSettings settings;
     SubGhzFileEncoderWorker* decode_raw_file_worker_encoder;
 };
@@ -87,3 +90,5 @@ void protopirate_sleep(ProtoPirateApp* app);
 void protopirate_hopper_update(ProtoPirateApp* app);
 void protopirate_tx(ProtoPirateApp* app, uint32_t frequency);
 void protopirate_tx_stop(ProtoPirateApp* app);
+bool protopirate_radio_init(ProtoPirateApp* app);
+void protopirate_radio_deinit(ProtoPirateApp* app);
