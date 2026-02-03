@@ -10,7 +10,6 @@ typedef enum {
     ProtoPirateViewWidget,
     ProtoPirateViewReceiver,
     ProtoPirateViewReceiverInfo,
-    ProtoPirateViewSetType,
     ProtoPirateViewAbout,
     ProtoPirateViewFileBrowser,
 } ProtoPirateView;
