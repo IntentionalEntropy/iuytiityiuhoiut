@@ -38,7 +38,7 @@ typedef struct {
     ProtoPirateLock lock;
     uint8_t lock_count;
     uint8_t animation_frame;
-    bool radar_view;
+    bool dolphin_view;
     bool sub_decode_mode;
 } ProtoPirateReceiverModel;
 
@@ -194,31 +194,32 @@ void protopirate_view_receiver_draw(Canvas* canvas, ProtoPirateReceiverModel* mo
 
         // Draw RSSI
         protopirate_view_rssi_draw(canvas, model);
+    }
 
-        //Draw To Unlock, Locked etc...
-        if(model->lock_count) {
+    //Draw To Unlock, Locked etc...
+    if(model->lock_count) {
+        canvas_draw_str(canvas, 44, 63, furi_string_get_cstr(model->frequency_str));
+        canvas_draw_str(canvas, 79, 63, furi_string_get_cstr(model->preset_str));
+        canvas_draw_str(canvas, 96, 63, furi_string_get_cstr(model->history_stat_str));
+        canvas_set_font(canvas, FontSecondary);
+        elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
+        elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
+        canvas_draw_icon(canvas, 65, 42, &I_Pin_back_arrow_10x8);
+        canvas_draw_icon(canvas, 80, 42, &I_Pin_back_arrow_10x8);
+        canvas_draw_icon(canvas, 95, 42, &I_Pin_back_arrow_10x8);
+        canvas_draw_icon(canvas, 16, 13, &I_WarningDolphin_45x42);
+        canvas_draw_dot(canvas, 17, 61);
+    } else {
+        if(model->lock == ProtoPirateLockOn) {
+            canvas_draw_icon(canvas, 64, 55, &I_Lock_7x8);
+            canvas_draw_str(canvas, 74, 62, "Locked");
+        } else {
             canvas_draw_str(canvas, 44, 63, furi_string_get_cstr(model->frequency_str));
             canvas_draw_str(canvas, 79, 63, furi_string_get_cstr(model->preset_str));
             canvas_draw_str(canvas, 96, 63, furi_string_get_cstr(model->history_stat_str));
-            canvas_set_font(canvas, FontSecondary);
-            elements_bold_rounded_frame(canvas, 14, 8, 99, 48);
-            elements_multiline_text(canvas, 65, 26, "To unlock\npress:");
-            canvas_draw_icon(canvas, 65, 42, &I_Pin_back_arrow_10x8);
-            canvas_draw_icon(canvas, 80, 42, &I_Pin_back_arrow_10x8);
-            canvas_draw_icon(canvas, 95, 42, &I_Pin_back_arrow_10x8);
-            canvas_draw_icon(canvas, 16, 13, &I_WarningDolphin_45x42);
-            canvas_draw_dot(canvas, 17, 61);
-        } else {
-            if(model->lock == ProtoPirateLockOn) {
-                canvas_draw_icon(canvas, 64, 55, &I_Lock_7x8);
-                canvas_draw_str(canvas, 74, 62, "Locked");
-            } else {
-                canvas_draw_str(canvas, 44, 63, furi_string_get_cstr(model->frequency_str));
-                canvas_draw_str(canvas, 79, 63, furi_string_get_cstr(model->preset_str));
-                canvas_draw_str(canvas, 96, 63, furi_string_get_cstr(model->history_stat_str));
-            }
         }
     }
+
     //Draw the List, or the Radar/Dolphin View.
     if(item_count > 0) {
         // Draw received items list
@@ -254,7 +255,7 @@ void protopirate_view_receiver_draw(Canvas* canvas, ProtoPirateReceiverModel* mo
         }
     } else {
         //Are we in Radar View or FLipper View Mode?
-        if(model->radar_view) {
+        if(!model->dolphin_view) {
             // Cool animated radar with expanding dots
             int center_x = 64;
             int center_y = 22;
@@ -474,7 +475,7 @@ bool protopirate_view_receiver_input(InputEvent* event, void* context) {
                             with_view_model(
                                 receiver->view,
                                 ProtoPirateReceiverModel * model,
-                                { model->radar_view = !model->radar_view; },
+                                { model->dolphin_view = !model->dolphin_view; },
                                 true);
                         }
                     }
