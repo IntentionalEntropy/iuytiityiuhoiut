@@ -1,5 +1,6 @@
 #include "raw_file_reader.h"
-#include "../protopirate_app_i.h"
+
+#ifdef ENABLE_SUB_DECODE_SCENE
 #include <stdint.h>
 #include <toolbox/stream/stream.h>
 #include <lib/flipper_format/flipper_format.h>
@@ -367,3 +368,4 @@ bool raw_file_reader_is_finished(RawFileReader* reader) {
     if(!reader) return true;
     return reader->file_finished && (reader->buffer_index >= reader->buffer_count);
 }
+#endif // ENABLE_SUB_DECODE_SCENE
