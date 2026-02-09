@@ -89,6 +89,7 @@ struct SubGhzProtocolDecoderPSA {
     uint8_t decrypted_type;
 };
 
+#ifdef ENABLE_EMULATE_FEATURE
 struct SubGhzProtocolEncoderPSA {
     SubGhzProtocolEncoderBase base;
     SubGhzProtocolBlockEncoder encoder;
@@ -107,7 +108,7 @@ struct SubGhzProtocolEncoderPSA {
     uint16_t crc;
     bool is_running;
 };
-
+#endif
 const SubGhzProtocolDecoder subghz_protocol_psa_decoder = {
     .alloc = subghz_protocol_decoder_psa_alloc,
     .free = subghz_protocol_decoder_psa_free,
@@ -118,7 +119,7 @@ const SubGhzProtocolDecoder subghz_protocol_psa_decoder = {
     .deserialize = subghz_protocol_decoder_psa_deserialize,
     .get_string = subghz_protocol_decoder_psa_get_string,
 };
-
+#ifdef ENABLE_EMULATE_FEATURE
 const SubGhzProtocolEncoder subghz_protocol_psa_encoder = {
     .alloc = subghz_protocol_encoder_psa_alloc,
     .free = subghz_protocol_encoder_psa_free,
@@ -126,7 +127,15 @@ const SubGhzProtocolEncoder subghz_protocol_psa_encoder = {
     .stop = subghz_protocol_encoder_psa_stop,
     .yield = subghz_protocol_encoder_psa_yield,
 };
-
+#else
+const SubGhzProtocolEncoder subghz_protocol_psa_encoder = {
+    .alloc = NULL,
+    .free = NULL,
+    .deserialize = NULL,
+    .stop = NULL,
+    .yield = NULL,
+};
+#endif
 const SubGhzProtocol psa_protocol = {
     .name = PSA_PROTOCOL_NAME,
     .type = SubGhzProtocolTypeDynamic,
@@ -146,6 +155,7 @@ static uint8_t psa_calculate_tea_crc(uint32_t v0, uint32_t v1);
 static void psa_tea_encrypt(uint32_t* v0, uint32_t* v1, const uint32_t* key);
 static void psa_unpack_tea_result_to_buffer(uint8_t* buffer, uint32_t v0, uint32_t v1);
 
+#ifdef ENABLE_EMULATE_FEATURE
 static void psa_second_stage_xor_encrypt(uint8_t* buffer) {
     uint8_t E6 = buffer[8];
     uint8_t E7 = buffer[9];
@@ -750,7 +760,7 @@ LevelDuration subghz_protocol_encoder_psa_yield(void* context) {
 
     return ret;
 }
-
+#endif
 static uint32_t psa_abs_diff(uint32_t a, uint32_t b) {
     if(a < b) {
         return b - a;
