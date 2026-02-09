@@ -26,9 +26,9 @@
 
 #define PROTOPIRATE_KEYSTORE_DIR_NAME APP_ASSETS_PATH("encrypted")
 
-#define ENABLE_EMULATE_FEATURE
+// #define ENABLE_EMULATE_FEATURE
 
-// #define REMOVE_LOGS
+#define REMOVE_LOGS
 
 #ifdef REMOVE_LOGS
 // Undefine existing macros
