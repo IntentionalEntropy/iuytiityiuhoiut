@@ -23,7 +23,7 @@ struct ProtoPirateHistory {
 
 ProtoPirateHistory* protopirate_history_alloc(void) {
     ProtoPirateHistory* instance = malloc(sizeof(ProtoPirateHistory));
-    furi_assert(instance);
+    furi_check(instance);
     ProtoPirateHistoryItemArray_init(instance->data);
     instance->last_index = 0;
     instance->last_update_timestamp = 0;
@@ -32,7 +32,7 @@ ProtoPirateHistory* protopirate_history_alloc(void) {
 }
 
 void protopirate_history_free(ProtoPirateHistory* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     for(size_t i = 0; i < ProtoPirateHistoryItemArray_size(instance->data); i++) {
         ProtoPirateHistoryItem* item = ProtoPirateHistoryItemArray_get(instance->data, i);
         furi_string_free(item->item_str);
@@ -49,7 +49,7 @@ void protopirate_history_free(ProtoPirateHistory* instance) {
 }
 
 void protopirate_history_reset(ProtoPirateHistory* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     for(size_t i = 0; i < ProtoPirateHistoryItemArray_size(instance->data); i++) {
         ProtoPirateHistoryItem* item = ProtoPirateHistoryItemArray_get(instance->data, i);
         furi_string_free(item->item_str);
@@ -66,12 +66,12 @@ void protopirate_history_reset(ProtoPirateHistory* instance) {
 }
 
 uint16_t protopirate_history_get_item(ProtoPirateHistory* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     return ProtoPirateHistoryItemArray_size(instance->data);
 }
 
 uint16_t protopirate_history_get_last_index(ProtoPirateHistory* instance) {
-    furi_assert(instance);
+    furi_check(instance);
     return instance->last_index;
 }
 
@@ -98,8 +98,8 @@ bool protopirate_history_add_to_history(
     ProtoPirateHistory* instance,
     void* context,
     SubGhzRadioPreset* preset) {
-    furi_assert(instance);
-    furi_assert(context);
+    furi_check(instance);
+    furi_check(context);
 
     SubGhzProtocolDecoderBase* decoder_base = context;
 
@@ -180,8 +180,8 @@ void protopirate_history_get_text_item_menu(
     ProtoPirateHistory* instance,
     FuriString* output,
     uint16_t idx) {
-    furi_assert(instance);
-    furi_assert(output);
+    furi_check(instance);
+    furi_check(output);
 
     if(idx >= ProtoPirateHistoryItemArray_size(instance->data)) {
         furi_string_set(output, "---");
@@ -214,8 +214,8 @@ void protopirate_history_get_text_item(
     ProtoPirateHistory* instance,
     FuriString* output,
     uint16_t idx) {
-    furi_assert(instance);
-    furi_assert(output);
+    furi_check(instance);
+    furi_check(output);
 
     if(idx >= ProtoPirateHistoryItemArray_size(instance->data)) {
         furi_string_set(output, "---");
@@ -234,7 +234,7 @@ SubGhzProtocolDecoderBase*
 }
 
 FlipperFormat* protopirate_history_get_raw_data(ProtoPirateHistory* instance, uint16_t idx) {
-    furi_assert(instance);
+    furi_check(instance);
 
     if(idx >= ProtoPirateHistoryItemArray_size(instance->data)) {
         return NULL;
