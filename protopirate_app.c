@@ -33,6 +33,10 @@ static void protopirate_app_tick_event_callback(void* context) {
 ProtoPirateApp* protopirate_app_alloc() {
     LOG_HEAP("Pre alloc");
     ProtoPirateApp* app = malloc(sizeof(ProtoPirateApp));
+    if(!app) {
+        FURI_LOG_E(TAG, "Failed to allocate ProtoPirateApp app !");
+        return NULL;
+    }
 
     LOG_HEAP("Start alloc");
     FURI_LOG_I(TAG, "Allocating ProtoPirate Decoder App");
@@ -246,8 +250,14 @@ bool protopirate_radio_init(ProtoPirateApp* app) {
     subghz_devices_init();
     FURI_LOG_D(TAG, "SubGhz devices initialized");
 
-    // Try external CC1101 first, fallback to internal
+    // Try external CC1101 first
     app->txrx->radio_device = radio_device_loader_set(NULL, SubGhzRadioDeviceTypeExternalCC1101);
+
+    // if not loading, fallback to internal
+    if(!app->txrx->radio_device) {
+        FURI_LOG_W(TAG, "External CC1101 not found, trying internal radio");
+        app->txrx->radio_device = radio_device_loader_set(NULL, SubGhzRadioDeviceTypeInternal);
+    }
 
     if(!app->txrx->radio_device) {
         FURI_LOG_E(TAG, "Failed to initialize any radio device!");
@@ -478,6 +488,11 @@ int32_t protopirate_app(char* p) {
     furi_hal_power_suppress_charge_enter();
 
     ProtoPirateApp* protopirate_app = protopirate_app_alloc();
+    if(!protopirate_app) {
+        // logging is already done in protopirate_app_alloc()
+        furi_hal_power_suppress_charge_exit();
+        return -1;
+    }
 
     // Handle Command line PSF that may have been passed to us
     bool load_saved = (p && strlen(p));
