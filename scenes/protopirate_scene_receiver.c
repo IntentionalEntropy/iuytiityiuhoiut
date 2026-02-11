@@ -141,7 +141,8 @@ void protopirate_scene_receiver_on_enter(void* context) {
 #ifndef REMOVE_LOGS
     bool is_external =
         app->txrx->radio_device ? radio_device_loader_is_external(app->txrx->radio_device) : false;
-    const char* device_name = subghz_devices_get_name(app->txrx->radio_device);
+    const char* device_name =
+        app->txrx->radio_device ? subghz_devices_get_name(app->txrx->radio_device) : NULL;
     FURI_LOG_I(TAG, "Radio device: %s", device_name ? device_name : "NULL");
     FURI_LOG_I(TAG, "Is External: %s", is_external ? "YES" : "NO");
     FURI_LOG_I(TAG, "Frequency: %lu Hz", app->txrx->preset->frequency);
