@@ -27,15 +27,13 @@ const char* const auto_save_text[AUTO_SAVE_COUNT] = {
     "ON",
 };
 
-#define TX_POWER_COUNT 11
+#define TX_POWER_COUNT 9
 const char* const tx_power_text[TX_POWER_COUNT] = {
     "Preset",
-    "12dBm",
-    "10dBm",
+    "10dBm +",
     "7dBm",
     "5dBm",
     "0dBm",
-    "-6dBm",
     "-10dBm",
     "-15dBm",
     "-20dBm",

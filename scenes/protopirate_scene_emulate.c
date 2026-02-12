@@ -24,19 +24,32 @@ typedef struct {
 
 static EmulateContext* emulate_context = NULL;
 
-#define TX_PRESET_POWER_COUNT 11
-const uint8_t tx_power_value[TX_PRESET_POWER_COUNT] = {
+#define TX_PRESET_POWER_COUNT 9
+//I had to skip the +10dBM and -6dBm Values, use only ones AM/FM have in common.
+//Highest Value is 12dBm for AM, 10 for FM. So Menu needs to reflect that.
+const uint8_t tx_power_value_AM[TX_PRESET_POWER_COUNT] = {
     0,
-    0xC0,
-    0xC5,
-    0xCD,
-    0x86,
-    0x50,
-    0x37,
-    0x26,
-    0x1D,
-    0x17,
-    0x03,
+    0xC0, //12dBm
+    0xCD, //7dBm
+    0x86, //5dBm
+    0x50, //0dBm
+    0x26, // -10dBm
+    0x1D, // -15dBm
+    0x17, //-20dBm
+    0x03 //-30dBm
+};
+
+//FM PATable Values. We have 8, not 10 (missing 12dBM and -6dBm that are in AM)
+const uint8_t tx_power_value_FM[TX_PRESET_POWER_COUNT] = {
+    0,
+    0xC0, // 10dBm
+    0xC8, //7dBm
+    0x84, //5dBm
+    0x60, //0dBm
+    0x34, //-10dBm
+    0x1D, //-15dBm
+    0x0E, // -20dBm
+    0x12, //-30dBm
 };
 
 void stop_tx(ProtoPirateApp* app) {
@@ -540,7 +553,7 @@ uint8_t get_tx_preset_byte(uint8_t* preset_data) {
     while(preset_data[offset] && (offset < MAX_PRESET_SIZE)) {
         offset += 2;
     }
-    return (!preset_data[offset] ? offset + 3 : 0);
+    return (!preset_data[offset] ? offset + 2 : 0);
 }
 
 bool protopirate_scene_emulate_on_event(void* context, SceneManagerEvent event) {
@@ -625,8 +638,23 @@ bool protopirate_scene_emulate_on_event(void* context, SceneManagerEvent event) 
                     //Set the TX Power
                     if(app->tx_power) {
                         preset_offset = get_tx_preset_byte(preset_data);
-                        if(preset_offset)
-                            preset_data[preset_offset] = tx_power_value[app->tx_power];
+                        //Try the 1st PA Table byte, use FM values
+                        if(preset_data[preset_offset]) {
+                            FURI_LOG_I(TAG, "FM PA table found. Applying TX Power");
+                            preset_data[preset_offset] = tx_power_value_FM[app->tx_power];
+                        } else {
+                            //Try the 2nd PA Table byte, use AM values
+                            preset_offset++;
+                            if(preset_data[preset_offset]) {
+                                FURI_LOG_I(TAG, "AM PA table found. Applying TX Power");
+                                preset_data[preset_offset] = tx_power_value_AM[app->tx_power];
+                            } else {
+                                FURI_LOG_I(TAG, "Weird PA table found, not applying TX power.");
+                                //Must be a custom Preset with weird PA table not in FW code, dont touch it.
+                            }
+                        }
+                    } else {
+                        FURI_LOG_I(TAG, "Using Preset TX Power.");
                     }
 
                     // Configure radio for TX
