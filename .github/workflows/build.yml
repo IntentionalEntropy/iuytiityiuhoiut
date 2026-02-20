@@ -1,55 +1,77 @@
 name: "FAP Build"
+
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
   schedule:
-    # do a build every day
-    - cron: "1 1 * * *"
+    - cron: "1 1 * * *" # daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # fam dir
+  APP_DIR: "."
+
 jobs:
-  ufbt-build-action:
+  ufbt-build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - name: OFW dev channel
             sdk-channel: dev
+            sdk-index-url: ""
             fap-name: ofw_dev
+
           - name: OFW release channel
             sdk-channel: release
+            sdk-index-url: ""
             fap-name: ofw_release
+
           - name: Unleashed dev
             sdk-index-url: https://up.unleashedflip.com/directory.json
             sdk-channel: dev
             fap-name: ul_dev
+
           - name: Unleashed release
             sdk-index-url: https://up.unleashedflip.com/directory.json
             sdk-channel: release
             fap-name: ul_release
+
           - name: Momentum dev
             sdk-index-url: https://up.momentum-fw.dev/firmware/directory.json
             sdk-channel: dev
             fap-name: mntm_dev
+
           - name: Momentum release
             sdk-index-url: https://up.momentum-fw.dev/firmware/directory.json
             sdk-channel: release
             fap-name: mntm_release
 
-    name: 'ufbt: Build for ${{ matrix.name }}'
+    name: "ufbt: Build for ${{ matrix.name }}"
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
+
       - name: Build with ufbt
-        uses: flipperdevices/flipperzero-ufbt-action@v0.1.2
+        uses: flipperdevices/flipperzero-ufbt-action@v0.1.4
         id: build-app
         with:
+          task: build
+          app-dir: ${{ env.APP_DIR }}
           sdk-channel: ${{ matrix.sdk-channel }}
+          # Empty string for OFW
           sdk-index-url: ${{ matrix.sdk-index-url }}
-      - name: Upload app artifacts
-        uses: actions/upload-artifact@v3
+
+      - name: Upload app artifacts (.fap/.fal)
+        uses: actions/upload-artifact@v4
         with:
-          name: protopirate_${{ matrix.fap-name }}_${{ steps.build-app.outputs.suffix }}.fap
+          name: protopirate_${{ matrix.fap-name }}_${{ steps.build-app.outputs.suffix }}
           path: ${{ steps.build-app.outputs.fap-artifacts }}
+          if-no-files-found: error
